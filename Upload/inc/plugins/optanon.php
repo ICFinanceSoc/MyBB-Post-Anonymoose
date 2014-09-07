@@ -105,7 +105,7 @@ function optanon_new_thread()
 	$optanon = ($mybb->input['optanon'] == 'y') ? '1' : '0';
 
 	if ($mybb->input['optanon'] == 'y' || $mybb->input['optanon'] == 'on') {
-		$db->update_query('threads', array('optanon_posted' => 1, 'uid' => 0, 'username' => 'Anonymoose','lastposteruid' => 0, 'lastposter' => "Anonymoose"), "`tid`='" . $thread_info['tid'] . "'");
+		$db->update_query('threads', array('optanon_posted' => 1, 'uid' => 0, 'username' => 'Anonymoose', 'lastposteruid' => 0, 'lastposter' => "Anonymoose"), "`tid`='" . $thread_info['tid'] . "'");
 		$db->update_query('posts', array('optanon_posted' => 1), "`pid`='" . $thread_info['pid'] . "'");
 	}
 }
@@ -114,6 +114,12 @@ function optanon_new_thread()
 function optanon_new_post()
 {
 	global $postinfo, $db, $mybb, $post;
+
+	// let's undo the effects of update_thread_data($tid)
+	$mythread = get_thread($post['tid']);
+	if ($mythread['optanon_posted'] == '1') {
+		$db->update_query('threads', array('uid' => 0, 'username' => 'Anonymoose'), "`tid`='" . $mythread['tid'] . "'");
+	}
 
 	if ($mybb->input['optanon'] == 'y' || $mybb->input['optanon'] == 'on') {
 		$db->update_query('posts', array('optanon_posted' => 1), "`pid`='" . $postinfo['pid'] . "'");
